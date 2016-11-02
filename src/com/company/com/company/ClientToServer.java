@@ -96,9 +96,9 @@ public class ClientToServer {
             String[] instanceData;
             for(int x = 0; x < Integer.parseInt(resultsSize); x++){
                 instanceData = inputS.readLine().split(","); //might not always be divided with commas
-                ourData[x][0] = instanceData[0];
-                ourData[x][1] = instanceData[1];
-                ourData[x][2] = instanceData[2];
+                ourData[x][0] = instanceData[0]; //link speed
+                ourData[x][1] = instanceData[1]; //host ip address
+                ourData[x][2] = instanceData[2]; //file name
             }
 
             return ourData;

@@ -6,7 +6,9 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 /**
  * Created by Blaze on 10/24/16.
@@ -18,6 +20,8 @@ public class NapsterView implements ActionListener{
     Socket centralServer; //our globally accessible socket to the centralized server.
 
     ClientToPeer ourClientToPeer;
+
+    ClientToServer ourClientToServer;
 
     JFrame ourFrame;
 
@@ -76,6 +80,11 @@ public class NapsterView implements ActionListener{
     String[] jTableHeaders = { "Speed", "Hostname", "File Name"};
 
     Object[][] ourData = { }; //our data is initially null.
+
+    private String serverIPString, portNumString, userNameString, searchString;
+
+    String speedString;
+
 
     public NapsterView(ClientToPeer passedClientToPeer){
 
@@ -173,7 +182,6 @@ public class NapsterView implements ActionListener{
         ourFrame.pack();
         ourFrame.setVisible(true);
     }
-
     @Override
     public void actionPerformed(ActionEvent e) {
 
@@ -195,6 +203,39 @@ public class NapsterView implements ActionListener{
         //all of these will need proper boolean flags to make sure you are not trying to quit before you connect, connect
         //before quitting the last server etc. no retrieving before connecting to a peer server, no quitting a peer server before
         //connecting etc.
+
+        connectButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                serverIPString = serverIP.getText();
+                portNumString = portNum.getText();
+                userNameString = usernameBox.getText();
+                speedString = linkSelector.getSelectedItem().toString();
+
+                if(!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("")){
+                    System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
+                    int portNumInt = Integer.parseInt(portNumString);
+                    try {
+                        ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), speedString); //todo fix parameters.
+                    } catch (UnknownHostException e1) {
+                        System.out.println("ClientToServer Unknown Host Exception.");
+                        e1.printStackTrace();
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(null, "Please fill in all fields");
+                }
+            }
+        } );
+
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+
+
+
+
     }
 
 }
