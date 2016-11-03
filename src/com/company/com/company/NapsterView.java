@@ -188,6 +188,7 @@ public class NapsterView implements ActionListener{
         ourFrame.add(overPanel);
         ourFrame.pack();
         ourFrame.setVisible(true);
+        ourFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //might need to be something else.
     }
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -221,7 +222,7 @@ public class NapsterView implements ActionListener{
                     System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
-                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), speedString);
+                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), userNameString, speedString);
                     } catch (UnknownHostException e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
                         e1.printStackTrace();

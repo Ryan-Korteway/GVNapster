@@ -28,7 +28,7 @@ public class ClientToServer {
 
     }
 
-    Socket connect(String ipAddr, int port, String ourIP, String ourSpeed) {
+    Socket connect(String ipAddr, int port, String ourIP, String ourUsername, String ourSpeed) {
         //connect to the server in question here, and then in the view, have the view send the central server the username and
         //link speed stuff later.
         try {
@@ -47,7 +47,7 @@ public class ClientToServer {
             //System.out.println("response received.");
             if (response.equals("Response: 220 Welcome to JFTP.")) { //TODO response message needs finalizing.
                 inputS.close();
-                sendServerMetaData(controlConnection, ourIP, ourSpeed);
+                sendServerMetaData(controlConnection, ourIP, ourUsername, ourSpeed);
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
             } else {
                 return null;
@@ -108,7 +108,7 @@ public class ClientToServer {
         }
     }
 
-    public void sendServerMetaData(Socket serverSocket, String ipAddress, String speed){
+    public void sendServerMetaData(Socket serverSocket, String ipAddress, String usernameParam, String speed){
         //TODO THEORETICALLY DONE BUT NEEDS TESTING ONCE THE VIEW AND SERVER ARE IN PLACE/READY also needs better exception
         //TODO handling.
         try {
@@ -123,10 +123,14 @@ public class ClientToServer {
             Element ipAddr = ourOrigFile.createElement("ip address");
             ipAddr.appendChild(ourOrigFile.createTextNode(ipAddress));
 
+            Element uName = ourOrigFile.createElement("username");
+            ipAddr.appendChild(ourOrigFile.createTextNode(usernameParam));
+
             Element linkSpeed = ourOrigFile.createElement("link Speed");
             linkSpeed.appendChild(ourOrigFile.createTextNode(speed));
 
             connectionNode.appendChild(ipAddr);
+            connectionNode.appendChild(uName);
             connectionNode.appendChild(linkSpeed);
 
             ourOrigFile.getFirstChild().appendChild(connectionNode); //need first child so we are not trying to append to the
