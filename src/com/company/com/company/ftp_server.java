@@ -81,6 +81,7 @@ public class ftp_server implements Runnable {
 
         } catch (Exception e) {
             System.out.println("Something went wrong with host server run.");
+            e.printStackTrace();
         }
     }
 }

@@ -19,7 +19,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 
 /**
- * Created by haksaver on 10/31/16.
+ * Created by Blaze and others on 10/31/16.
  */
 public class ClientToServer {
 
@@ -103,7 +103,7 @@ public class ClientToServer {
 
             return ourData;
         } catch (Exception e) {
-            System.out.println("Something happened with search"); //TODO need to handle null results in the view
+            System.out.println("Something happened with search");
             return null;
         }
     }

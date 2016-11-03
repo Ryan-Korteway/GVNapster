@@ -77,18 +77,23 @@ public class NapsterView implements ActionListener{
 
     JTextArea programOutput;
 
-    String[] jTableHeaders = { "Speed", "Hostname", "File Name"};
-
-    Object[][] ourData = { }; //our data is initially null.
-
     private String serverIPString, portNumString, userNameString, searchString;
 
     String speedString;
 
+    Boolean connected = false;
 
-    public NapsterView(ClientToPeer passedClientToPeer){
+    JScrollPane resultsScroll;
+
+    TableModel ourModel;
+
+    Socket localSocket;
+
+    public NapsterView(ClientToPeer passedClientToPeer, ClientToServer passedClientToServer){
 
         ourClientToPeer = passedClientToPeer;
+
+        ourClientToServer = passedClientToServer;
 
         ourFrame = new JFrame();
 
@@ -145,16 +150,18 @@ public class NapsterView implements ActionListener{
 
         searchButton = new JButton("Search");
 
-        serverResults = new JTable(ourData, jTableHeaders); //our data is empty, need to redefine it and update the table once
-        //we hit search and get back some results. EDIT So we update data with the values from the server, then we call
-        //serverResults.fireTableDataChanged();
+        ourModel = new TableModel();
+        serverResults = new JTable(ourModel);
+
+        resultsScroll = new JScrollPane(serverResults);
 
         searchButton.addActionListener(this);
 
         searchPanel.add(keywordLabel, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
-        searchPanel.add(serverResults, BorderLayout.SOUTH);
+
+        searchPanel.add(resultsScroll, BorderLayout.SOUTH); //scroll panel needed to show headers.
 
         //function panel items
 
@@ -204,38 +211,111 @@ public class NapsterView implements ActionListener{
         //before quitting the last server etc. no retrieving before connecting to a peer server, no quitting a peer server before
         //connecting etc.
 
-        connectButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == connectButton) {
                 serverIPString = serverIP.getText();
                 portNumString = portNum.getText();
                 userNameString = usernameBox.getText();
                 speedString = linkSelector.getSelectedItem().toString();
 
-                if(!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("")){
+                if (!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("")) {
                     System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
-                        ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), speedString); //todo fix parameters.
+                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), speedString);
                     } catch (UnknownHostException e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
                         e1.printStackTrace();
                     }
-                }else{
+                } else {
                     JOptionPane.showMessageDialog(null, "Please fill in all fields");
                 }
             }
-        } );
 
-        searchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
+            if(e.getSource() == quitButton){
+                try {
+                    ourClientToServer.quitServer(centralServer);
+                }catch(Exception E){
+                    JOptionPane.showMessageDialog(null, "Could not disconnect, are you connected to a server?");
+                }
             }
-        });
 
+            if(e.getSource() == searchButton){
+                try {
+                    if(centralServer != null) {
+                        //TODO using our table model here.
+                        String keyword = searchField.getText();
+                        Object[][] ourResults = ourClientToServer.searchServer(keyword, centralServer);
+                        if(ourResults == null){
+                            JOptionPane.showMessageDialog(null, "Results were null. An error has occurred.");
+                        }
+                        else {
+                            ourModel.setOurData(ourResults);
+                        }
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(null, "Server is null, who do we try to search?");
+                    }
+                }catch(Exception ex){
+                    JOptionPane.showMessageDialog(null, "something went wrong with search, are you connected to a server?");
+                }
+            }
 
+            if(e.getSource() == goButton){
+                programOutput.append( commandField.getText() + "\n");
+                //need boolean flags for connect, retr, and quit order of ops
+                String[] command = (commandField.getText()).split(" ");
+                JOptionPane.showMessageDialog(null, connected.toString() + " " + command[0]);
+                if(!connected && (command[0].toLowerCase()).equals("connect")){
+                    try {
+                        localSocket = ourClientToPeer.connect(command[1], 3715);
+                        connected = true;
+                        programOutput.append("Connected to the server.\n");
 
+                    }catch(ArrayIndexOutOfBoundsException arInEx){
+                        JOptionPane.showMessageDialog(null, "Please provide a valid IP address before trying to connect to a server.");
+                    }
+                }
+                else if(connected && (command[0].toLowerCase()).equals("connect")){
+                    JOptionPane.showMessageDialog(null, "Need to disconnect from the current server before you can connect to a new one.");
+                }
+                else if(connected && (command[0].toLowerCase()).equals("retr")){
+                    try {
+                        ourClientToPeer.getFile(command[1], localSocket, 3715);
+                        ourClientToPeer.getFileMetaData(command[1], localSocket, 3715);
+                        programOutput.append("File retrieved.\n");
+                    }catch(ArrayIndexOutOfBoundsException arInEx){
+                        JOptionPane.showMessageDialog(null, "Please provide a valid file name before trying to retrieve a file.");
+                    }catch(NullPointerException ne){
+                        JOptionPane.showMessageDialog(null, "local socket was null, shouldnt be happening.");
+                    }
+                }
+                else if(!connected && (command[0].toLowerCase()).equals("retr")){
+                    JOptionPane.showMessageDialog(null, "Need to connect to a server before you can retrieve a file.");
+                }
+                else if(connected && (command[0].toLowerCase()).equals("quit")){
+                    try {
+                        ourClientToPeer.quitServer(localSocket);
+                        connected = false;
+                        programOutput.append("Disconnected from the server.\n");
+                    }catch(Exception ex){
+                        JOptionPane.showMessageDialog(null, "A quit exception has occurred.");
+                    }
+                }
+                else if(!connected && (command[0].toLowerCase()).equals("quit")){
+                    JOptionPane.showMessageDialog(null, "Need to connect to a server before you can quit a server.");
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "Command not recognized.\n Valid commands are connect, " +
+                            "retr followed by a file name,\n or quit. Certain commands cannot be performed without first connecting or disconnecting from the current server. ");
+                }
+            }
 
     }
 
 }
+/*
+the commented out code grave yard that might still have some useful things to teach us.
+JOptionPane.showMessageDialog(null, "should repaint.");
+                Object[][] newData = new Object[][]{{"new test", "new test", "new test"}};
+                ourModel.setOurData(newData);
+ */

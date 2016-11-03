@@ -16,7 +16,7 @@ public class Main {
         //ourClientToPeer.connect("12", 12); //unnecessary line to make sure that our client methods actually are reachable through
         //the client object.
 
-        NapsterView ourView = new NapsterView(ourClientToPeer); //TODO pass in the client to server stuff too.
+        NapsterView ourView = new NapsterView(ourClientToPeer, ourClientToServer);
     }
 
 }
