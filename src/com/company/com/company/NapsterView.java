@@ -77,7 +77,9 @@ public class NapsterView implements ActionListener{
 
     JTextArea programOutput;
 
-    private String serverIPString, portNumString, userNameString, searchString;
+    //miscellaneous add on variables.
+
+    private String serverIPString, portNumString, userNameString;
 
     String speedString;
 
@@ -281,14 +283,29 @@ public class NapsterView implements ActionListener{
                 }
                 else if(connected && (command[0].toLowerCase()).equals("retr")){
                     try {
-                        ourClientToPeer.getFile(command[1], localSocket, 3715);
-                        ourClientToPeer.getFileMetaData(command[1], localSocket, 3715);
-                        programOutput.append("File retrieved.\n");
+                        userNameString = usernameBox.getText();
+                        speedString = linkSelector.getSelectedItem().toString();
+
+                        //TODO update the if statement for central server stuff and undo the host exception catch block being commented out.
+                        if (!userNameString.equals("") && (centralServer != null)) {
+                            ourClientToPeer.getFile(command[1], localSocket, 3715);
+                            ourClientToPeer.getFileMetaData(command[1], localSocket, 3715);
+                            //TODO uncomment the line below once our central server is ready/involved
+                            //TODO ourClientToServer.sendServerMetaData(centralServer, InetAddress.getLocalHost().getHostName(), userNameString, speedString);
+                            programOutput.append("File retrieved.\n");
+                        }
+                        else{
+                            JOptionPane.showMessageDialog(null, "Please fill in all fields. " +
+                                    "\nNeed a username for the central server to know that your \n" +
+                                    "particular meta data file has been updated. You also  must be connected to a central server.");
+                        }
                     }catch(ArrayIndexOutOfBoundsException arInEx){
                         JOptionPane.showMessageDialog(null, "Please provide a valid file name before trying to retrieve a file.");
                     }catch(NullPointerException ne){
-                        JOptionPane.showMessageDialog(null, "local socket was null, shouldnt be happening.");
-                    }
+                        JOptionPane.showMessageDialog(null, "local or server socket was null, shouldn't be happening.");
+                    }// catch (UnknownHostException e1) {
+//                        e1.printStackTrace();
+//                    }
                 }
                 else if(!connected && (command[0].toLowerCase()).equals("retr")){
                     JOptionPane.showMessageDialog(null, "Need to connect to a server before you can retrieve a file.");

@@ -5,6 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/**
+ * The ftp request java file made by Tensei Nguyen and company
+ */
 final class FtpRequest implements Runnable {
     final static String CRLF = "\r\n";
     Socket socket;

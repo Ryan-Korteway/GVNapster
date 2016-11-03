@@ -1,5 +1,8 @@
 package com.company;
 
+/**
+ * The main java file made by Ryan Korteway and company
+ */
 public class Main {
 
     public static void main(String[] args) {

@@ -45,7 +45,7 @@ public class ClientToServer {
             //System.out.println("Connect received.");
             String response = inputS.readLine();
             //System.out.println("response received.");
-            if (response.equals("Response: 220 Welcome to JFTP.")) { //TODO response message needs finalizing.
+            if (response.equals("Response: 220 Welcome to JFTP.")) { //TODO Tensei response message needs finalizing.
                 inputS.close();
                 sendServerMetaData(controlConnection, ourIP, ourUsername, ourSpeed);
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
@@ -55,7 +55,7 @@ public class ClientToServer {
 
         } catch (Exception e) {
             System.out.println("Connection Exception. " + e.toString());
-            return null; //null checks on the other end needed.
+            return null;
         }
 
     }
@@ -95,7 +95,7 @@ public class ClientToServer {
 
             String[] instanceData;
             for(int x = 0; x < Integer.parseInt(resultsSize); x++){
-                instanceData = inputS.readLine().split(","); //might not always be divided with commas
+                instanceData = inputS.readLine().split(","); //TODO Tensei the results strings might not always be divided with commas
                 ourData[x][0] = instanceData[0]; //link speed
                 ourData[x][1] = instanceData[1]; //host ip address
                 ourData[x][2] = instanceData[2]; //file name

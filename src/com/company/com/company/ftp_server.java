@@ -7,6 +7,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
 
+/**
+ * The data request java file made by Tensei Nguyen and company
+ */
+
 public class ftp_server implements Runnable {
 
     public ftp_server(){

@@ -3,7 +3,8 @@ package com.company;
 import javax.swing.table.AbstractTableModel;
 
 /**
- * Created by haksaver on 11/2/16.
+ * our table model to allow us to update our JTable's values
+ * Created by Ryan Korteway on 11/2/16.
  */
 public class TableModel extends AbstractTableModel{
 

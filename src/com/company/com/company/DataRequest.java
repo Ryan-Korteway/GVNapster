@@ -11,6 +11,10 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/**
+ * The data request java file made by Tensei Nguyen and company
+ */
+
 public class DataRequest implements Runnable{
     final static String CRLF = "\r\n";
     Socket socket;
