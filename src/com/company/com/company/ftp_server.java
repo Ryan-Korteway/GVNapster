@@ -62,6 +62,7 @@ public class ftp_server implements Runnable {
                 while (ourPort == 0) {
                     ourPort = getOpenPort();
                 }
+
                 System.out.println("ourPort has been made");
                 dictate.write(ourPort + "\r\n"); //dont forget your end lines
                 dictate.flush(); //dont forget to flush either.

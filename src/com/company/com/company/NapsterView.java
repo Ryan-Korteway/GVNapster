@@ -1,5 +1,7 @@
 package com.company;
 
+import javafx.beans.property.adapter.JavaBeanObjectProperty;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -41,11 +43,15 @@ public class NapsterView implements ActionListener{
 
     JLabel speedLabel;
 
+    JLabel userIP;
+
     JTextField serverIP;
 
     JTextField portNum;
 
     JTextField usernameBox;
+
+    JTextField userIPBox;
 
     JButton connectButton;
 
@@ -101,7 +107,7 @@ public class NapsterView implements ActionListener{
 
         overPanel = new JPanel(new BorderLayout());
 
-        connectPanel = new JPanel(new GridLayout(2,5));
+        connectPanel = new JPanel(new GridLayout(3,5));
         connectPanel.setBorder(new TitledBorder(new LineBorder(Color.gray, 3), "Connection"));
         searchPanel = new JPanel(new BorderLayout());
         searchPanel.setBorder(new TitledBorder(new LineBorder(Color.gray, 3), "Search"));
@@ -113,10 +119,12 @@ public class NapsterView implements ActionListener{
         serverPort = new JLabel("Port: ");
         username = new JLabel("Username: ");
         speedLabel = new JLabel("Speed/kind of link: ");
+        userIP = new JLabel("Enter Your IP address:");
 
         serverIP = new JTextField(); //JTextFields for single lines of code, JTextArea's for multi lines of text.
         portNum = new JTextField();
         usernameBox = new JTextField();
+        userIPBox = new JTextField();
 
         connectButton = new JButton("Connect");
         quitButton = new JButton("Disconnect");
@@ -143,6 +151,16 @@ public class NapsterView implements ActionListener{
         connectPanel.add(linkSelector);
 
         connectPanel.add(quitButton);
+
+        connectPanel.add(userIP);
+
+        connectPanel.add(userIPBox);
+
+        connectPanel.add(new JLabel("  "));
+
+        connectPanel.add(new JLabel("  "));
+
+        connectPanel.add(new JLabel("  "));
 
         //search panel items
 
@@ -219,14 +237,16 @@ public class NapsterView implements ActionListener{
                 portNumString = portNum.getText();
                 userNameString = usernameBox.getText();
                 speedString = linkSelector.getSelectedItem().toString();
+                String userIPaddress = userIPBox.getText();
 
-                if (!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("")) {
+                if (!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("") && !userIPaddress.equals("")) {
                     System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
-                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, InetAddress.getLocalHost().getHostAddress(), userNameString, speedString);
-                    } catch (UnknownHostException e1) {
+                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, userIPaddress, userNameString, speedString);
+                    } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
+                        JOptionPane.showMessageDialog(null, e1.getMessage()); //replacing print lines with pop ups.
                         e1.printStackTrace();
                     }
                 } else {
@@ -245,7 +265,6 @@ public class NapsterView implements ActionListener{
             if(e.getSource() == searchButton){
                 try {
                     if(centralServer != null) {
-                        //TODO using our table model here.
                         String keyword = searchField.getText();
                         Object[][] ourResults = ourClientToServer.searchServer(keyword, centralServer);
                         if(ourResults == null){
@@ -264,18 +283,21 @@ public class NapsterView implements ActionListener{
             }
 
             if(e.getSource() == goButton){
-                programOutput.append( commandField.getText() + "\n");
+                programOutput.append( commandField.getText() + "\r\n");
                 //need boolean flags for connect, retr, and quit order of ops
-                String[] command = (commandField.getText()).split(" ");
-                JOptionPane.showMessageDialog(null, connected.toString() + " " + command[0]);
+                String[] command = (commandField.getText().split(" "));
+                //JOptionPane.showMessageDialog(null, connected.toString() + " " + command[0]);
                 if(!connected && (command[0].toLowerCase()).equals("connect")){
                     try {
                         localSocket = ourClientToPeer.connect(command[1], 3715);
+                        localSocket.getLocalPort();
                         connected = true;
                         programOutput.append("Connected to the server.\n");
 
                     }catch(ArrayIndexOutOfBoundsException arInEx){
                         JOptionPane.showMessageDialog(null, "Please provide a valid IP address before trying to connect to a server.");
+                    }catch (NullPointerException neo){
+                        System.out.println("null socket returned.");
                     }
                 }
                 else if(connected && (command[0].toLowerCase()).equals("connect")){
@@ -287,9 +309,9 @@ public class NapsterView implements ActionListener{
                         speedString = linkSelector.getSelectedItem().toString();
 
                         //TODO update the if statement for central server stuff and undo the host exception catch block being commented out.
-                        if (!userNameString.equals("") && (centralServer != null)) {
-                            ourClientToPeer.getFile(command[1], localSocket, 3715);
-                            ourClientToPeer.getFileMetaData(command[1], localSocket, 3715);
+                        if (!userNameString.equals("")){ //TODO && (centralServer != null)) {
+                            ourClientToPeer.getFile(command[1], localSocket); //TODO need to use proper port.
+                            ourClientToPeer.getFileMetaData(command[1], localSocket);
                             //TODO uncomment the line below once our central server is ready/involved
                             //TODO ourClientToServer.sendServerMetaData(centralServer, InetAddress.getLocalHost().getHostName(), userNameString, speedString);
                             programOutput.append("File retrieved.\n");

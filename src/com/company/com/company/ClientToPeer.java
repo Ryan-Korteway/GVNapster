@@ -50,7 +50,8 @@ public class ClientToPeer{
             String response = inputS.readLine();
             //System.out.println("response received.");
             if (response.equals("Response: 220 Welcome to JFTP.")) {
-                inputS.close();
+                System.out.println("IT works");
+                //inputS.close();
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
             } else {
                 return null;
@@ -79,7 +80,7 @@ public class ClientToPeer{
         }
     }
 
-    public void getFile(String ourFile, Socket givenSocket, int givenPort) {
+    public void getFile(String ourFile, Socket givenSocket) {
         try {
             BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
@@ -88,17 +89,19 @@ public class ClientToPeer{
             outputS.write("\r\n");
             outputS.flush();
 
-
             String resultString = "";
             while (resultString.equals("")) {
                 resultString = inputS.readLine();
             }
 
+            String[] ourResults = resultString.split(","); //TODO added lines to receive a port number for the servers data socket
+            int ourPortFromServer = Integer.parseInt(ourResults[1]);
+
             //System.out.println("first result "+resultString);
 
-            if (resultString.equals("Response: 225 Data Connection Open.")) {
-                Socket dataSocket = new Socket(givenSocket.getInetAddress(), givenPort);
-                DataInputStream serverInput = new DataInputStream(dataSocket.getInputStream());
+            if (resultString.contains("Response: 225 Data Connection Open.")) {
+                Socket dataSocket = new Socket(givenSocket.getInetAddress(), ourPortFromServer); //TODO not listening on the other end for this port, need to set up/use different ports.
+                DataInputStream serverInput = new DataInputStream(dataSocket.getInputStream()); //TODO probably just try 3716
 
                 resultString = "";
                 while (resultString.equals("")) {
@@ -129,15 +132,15 @@ public class ClientToPeer{
                     }
 
                     if (resultString.equals("Response: 226 Closing data connection.")) {
-                        inputS.close();
-                        outputS.close();
+//                        inputS.close();
+//                        outputS.close();
                         dataOutToFile.close();
 
                     } else {
                         //print out of the error message from the server.
                         System.out.println("Retrieve function did not end properly. Your file may not be complete.");
-                        inputS.close();
-                        outputS.close();
+//                        inputS.close();
+//                        outputS.close();
                         dataOutToFile.close();
                     }
                 } else {
@@ -147,10 +150,11 @@ public class ClientToPeer{
 
         } catch (Exception E) {
             System.out.println("Something went wrong with retrieve.");
+            E.printStackTrace();
         }
     }
 
-    public void getFileMetaData(String ourFile, Socket givenSocket, int givenPort) {
+    public void getFileMetaData(String ourFile, Socket givenSocket) {
         //TODO theoretically should be working, xml stuff tested by itself in a separate project but never know
         //TODO when it comes to networking stuff what weirdness will happen.
         try {
@@ -198,8 +202,11 @@ public class ClientToPeer{
 
             //System.out.println("first result "+resultString);
 
-            if (resultString.equals("Response: 225 Data Connection Open.")) {
-                Socket dataSocket = new Socket(givenSocket.getInetAddress(), givenPort);
+            String[] ourResults = resultString.split(",");
+            int ourPortFromServer = Integer.parseInt(ourResults[1]);
+
+            if (resultString.contains("Response: 225 Data Connection Open.")) {
+                Socket dataSocket = new Socket(givenSocket.getInetAddress(), ourPortFromServer);
                 DataInputStream serverInput = new DataInputStream(dataSocket.getInputStream());
 
                 resultString = "";
@@ -252,8 +259,8 @@ public class ClientToPeer{
                     }
 
                     if (resultString.equals("Response: 226 Closing data connection.")) {
-                        inputS.close();
-                        outputS.close();
+//                        inputS.close();
+//                        outputS.close();
 
                         //make the new file down here once time is not so sensitive. with the xml factory stuff
                         TransformerFactory transFact = TransformerFactory.newInstance();

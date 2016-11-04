@@ -102,8 +102,11 @@ public class DataRequest implements Runnable{
             }
 
             is.close();
-            os.close();
-            socket.close();
+            os.close(); //TODO commented out because it seems like the FTP request should close those things once quit is sent and the user disconnects.
+            socket.close(); //TODO gonna trace it and try to figure it out later, see if it really should be doing it or not.
+                                //TODO this will be an issue or not for sure once i try to retrieve multiple files in a row from one peer.
+
+        //TODO uncommented it again to save for the testing phase, if it works like this in project 1 then dont potentially break it in part two trying to fix non issues.
     }
 
     private ArrayList<String> getFile(String fileName) throws Exception {

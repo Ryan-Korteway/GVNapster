@@ -46,7 +46,7 @@ public class ClientToServer {
             String response = inputS.readLine();
             //System.out.println("response received.");
             if (response.equals("Response: 220 Welcome to JFTP.")) { //TODO Tensei response message needs finalizing.
-                inputS.close();
+                //inputS.close();
                 sendServerMetaData(controlConnection, ourIP, ourUsername, ourSpeed);
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
             } else {
@@ -157,7 +157,7 @@ public class ClientToServer {
 
             dataOut.write(ourBytes, 0, ourBytes.length); //shouldn't need a flush thanks to the close, but doing it anyways.
             dataOut.flush();
-            dataOut.close();
+            //dataOut.close();
 
             //still need to delete the file afterwards.
             Files.deleteIfExists(metaToSend.toPath());
