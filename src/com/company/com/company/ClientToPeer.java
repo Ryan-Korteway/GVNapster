@@ -96,14 +96,14 @@ public class ClientToPeer{
                 resultString = inputS.readLine();
             }
 
-            String[] ourResults = resultString.split(","); //TODO added lines to receive a port number for the servers data socket
+            String[] ourResults = resultString.split(",");
             int ourPortFromServer = Integer.parseInt(ourResults[1]);
 
             //System.out.println("first result "+resultString);
 
             if (resultString.contains("Response: 225 Data Connection Open.")) {
-                Socket dataSocket = new Socket(givenSocket.getInetAddress(), ourPortFromServer); //TODO not listening on the other end for this port, need to set up/use different ports.
-                DataInputStream serverInput = new DataInputStream(dataSocket.getInputStream()); //TODO probably just try 3716
+                Socket dataSocket = new Socket(givenSocket.getInetAddress(), ourPortFromServer);
+                DataInputStream serverInput = new DataInputStream(dataSocket.getInputStream());
 
                 resultString = "";
                 while (resultString.equals("")) {
@@ -128,17 +128,11 @@ public class ClientToPeer{
                         }
                     }
 
-                    resultString = "";
-                    while (resultString.equals("")) {
-                        resultString = inputS.readLine();
-                    }
-
-                    if (resultString.equals("Response: 226 Closing data connection.")) {
+                    if (resultString.contains("Response: 226 Closing data connection.")) {
 //                        inputS.close();
 //                        outputS.close();
                         JOptionPane.showMessageDialog(null, "file good!");
                         dataOutToFile.close();
-
                     } else {
                         //print out of the error message from the server.
                         JOptionPane.showMessageDialog(null, "Retrieve function did not end properly. Your file may not be complete.");
@@ -152,10 +146,11 @@ public class ClientToPeer{
                 }
             }
 
-        } catch (Exception E) {
+        } catch (Exception E) { //TODO we are getting hung up in RETR somewhere and only closing the server is dealing with it.
             JOptionPane.showMessageDialog(null, "Something went wrong with retrieve.");
             E.printStackTrace();
         }
+            JOptionPane.showMessageDialog(null, "Leaving get file now.");
     }
 
     public void getFileMetaData(String ourFile, Socket givenSocket) {
@@ -168,9 +163,15 @@ public class ClientToPeer{
             DocumentBuilderFactory myDBF = DocumentBuilderFactory.newInstance();
             DocumentBuilder myDB = myDBF.newDocumentBuilder();
 
-            File localFile = new File("./data/meta.xml"); //parse the xml file into a document.
+            JOptionPane.showMessageDialog(null, "About to load up and parse the meta data");
 
+
+            //the start of the file path on my windows tower.
+            File localFile = new File("./data/meta.xml"); //parse the xml file into a document.
+//TODO removing the period at the start of the file path to make things windows friendly for a spell.
             Document localXML = myDB.parse(localFile);
+
+            JOptionPane.showMessageDialog(null, "accessing meta data");
 
             Element myRootElement = localXML.getDocumentElement();
 
@@ -191,6 +192,8 @@ public class ClientToPeer{
                 }
             }
 
+            JOptionPane.showMessageDialog(null, "meta data search done.");
+
             BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
 
@@ -198,6 +201,7 @@ public class ClientToPeer{
             outputS.write("\r\n");
             outputS.flush();
 
+            JOptionPane.showMessageDialog(null, "retrieve_M sent.");
 
             String resultString = "";
             while (resultString.equals("")) {
@@ -257,11 +261,6 @@ public class ClientToPeer{
                         }
                     }
 
-                    resultString = "";
-                    while (resultString.equals("")) {
-                        resultString = inputS.readLine();
-                    }
-
                     if (resultString.equals("Response: 226 Closing data connection.")) {
 //                        inputS.close();
 //                        outputS.close();
@@ -298,7 +297,8 @@ public class ClientToPeer{
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println("Something went wrong with the I/O.");
-            JOptionPane.showMessageDialog(null, "something went wrong with I/O");
+            JOptionPane.showMessageDialog(null, "something went wrong with I/O ###\n" + e.getLocalizedMessage()
+            + "\n" + e.getMessage());
             e.printStackTrace();
         } catch (TransformerConfigurationException e) {
             System.out.println("Something went wrong with transformer.");
