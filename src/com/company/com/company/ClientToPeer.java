@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,7 +51,7 @@ public class ClientToPeer{
             String response = inputS.readLine();
             //System.out.println("response received.");
             if (response.equals("Response: 220 Welcome to JFTP.")) {
-                System.out.println("IT works");
+                JOptionPane.showMessageDialog(null, "IT works");
                 //inputS.close();
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
             } else {
@@ -58,7 +59,7 @@ public class ClientToPeer{
             }
 
         } catch (Exception e) {
-            System.out.println("Connection Exception. " + e.toString());
+            JOptionPane.showMessageDialog(null, "Connection Exception. " + e.toString());
             return null; //null checks on the other end needed.
         }
 
@@ -77,6 +78,7 @@ public class ClientToPeer{
             givenSocket.close();
         } catch (Exception e) {
             System.out.println("Things happened during the quit.");
+            JOptionPane.showMessageDialog(null, "things happened during the quit");
         }
     }
 
@@ -134,22 +136,24 @@ public class ClientToPeer{
                     if (resultString.equals("Response: 226 Closing data connection.")) {
 //                        inputS.close();
 //                        outputS.close();
+                        JOptionPane.showMessageDialog(null, "file good!");
                         dataOutToFile.close();
 
                     } else {
                         //print out of the error message from the server.
-                        System.out.println("Retrieve function did not end properly. Your file may not be complete.");
+                        JOptionPane.showMessageDialog(null, "Retrieve function did not end properly. Your file may not be complete.");
 //                        inputS.close();
 //                        outputS.close();
                         dataOutToFile.close();
                     }
                 } else {
                     System.out.println(resultString + " File not found on the server.");
+                    JOptionPane.showMessageDialog(null, "file not found on the server.");
                 }
             }
 
         } catch (Exception E) {
-            System.out.println("Something went wrong with retrieve.");
+            JOptionPane.showMessageDialog(null, "Something went wrong with retrieve.");
             E.printStackTrace();
         }
     }
@@ -271,30 +275,38 @@ public class ClientToPeer{
                     } else {
                         //print out of the error message from the server.
                         System.out.println("Retrieve function did not end properly. Your xml file may not be complete.");
-                        inputS.close();
-                        outputS.close();
+                        JOptionPane.showMessageDialog(null, "File retrieve didnt end right");
+//                        inputS.close();
+//                        outputS.close();
                     }
                 } else {
                     System.out.println(resultString + " File not found on the server.");
+                    JOptionPane.showMessageDialog(null, "file not found on the server");
                 }
             }
 
         } catch (NullPointerException E) {
             System.out.println("Something went wrong with toChange.");
+            JOptionPane.showMessageDialog(null, "something went wrong with toChange");
         } catch (ParserConfigurationException e) {
             System.out.println("Something went wrong with parser.");
+            JOptionPane.showMessageDialog(null, "something went wrong with parser");
             e.printStackTrace();
         } catch (SAXException e) {
             System.out.println("Something went wrong with SAX.");
+            JOptionPane.showMessageDialog(null, "something went wrong with SAX");
             e.printStackTrace();
         } catch (IOException e) {
             System.out.println("Something went wrong with the I/O.");
+            JOptionPane.showMessageDialog(null, "something went wrong with I/O");
             e.printStackTrace();
         } catch (TransformerConfigurationException e) {
             System.out.println("Something went wrong with transformer.");
+            JOptionPane.showMessageDialog(null, "something went wrong with transformer");
             e.printStackTrace();
         } catch (TransformerException e) {
             System.out.println("Something went wrong with the transformation itself.");
+            JOptionPane.showMessageDialog(null, "something went wrong with transformation itself.");
             e.printStackTrace();
         }
     }

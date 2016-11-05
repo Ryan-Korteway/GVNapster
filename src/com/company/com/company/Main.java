@@ -16,5 +16,5 @@ public class Main {
         NapsterView ourView = new NapsterView(ourClientToPeer, ourClientToServer);
     }
 
-    //TODO NO CLOSING ANY STREAMS EARLY
+    //TODO NO CLOSING ANY STREAMS EARLY, should be good ~rk
 }

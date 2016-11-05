@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
@@ -64,7 +65,7 @@ public class DataRequest implements Runnable{
                             String nodeFileName = here.getElementsByTagName("name").item(0).getTextContent();
                             if(nodeFileName.equals(fileName)){
                                 String results = here.getElementsByTagName("desc").item(0).getTextContent();
-                                os.writeUTF(results + "\n"); //todo Might not need the new line here.
+                                os.writeUTF(results + "\r\n"); //todo Might not need the new line here.
                                 os.flush();
                             }
                         }
@@ -101,6 +102,7 @@ public class DataRequest implements Runnable{
                 }
             }
 
+            JOptionPane.showMessageDialog(null, "Streams and sockets stuff closed.");
             is.close();
             os.close(); //TODO commented out because it seems like the FTP request should close those things once quit is sent and the user disconnects.
             socket.close(); //TODO gonna trace it and try to figure it out later, see if it really should be doing it or not.

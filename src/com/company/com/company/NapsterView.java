@@ -310,7 +310,7 @@ public class NapsterView implements ActionListener{
 
                         //TODO update the if statement for central server stuff and undo the host exception catch block being commented out.
                         if (!userNameString.equals("")){ //TODO && (centralServer != null)) {
-                            ourClientToPeer.getFile(command[1], localSocket); //TODO need to use proper port.
+                            ourClientToPeer.getFile(command[1], localSocket);
                             ourClientToPeer.getFileMetaData(command[1], localSocket);
                             //TODO uncomment the line below once our central server is ready/involved
                             //TODO ourClientToServer.sendServerMetaData(centralServer, InetAddress.getLocalHost().getHostName(), userNameString, speedString);
