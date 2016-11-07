@@ -5,6 +5,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
+import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -19,6 +20,7 @@ import java.net.Socket;
 import java.nio.file.Files;
 
 /**
+ * The ClientToServer class handling interactions between our user and the central server.
  * Created by Blaze and others on 10/31/16.
  */
 public class ClientToServer {
@@ -28,7 +30,7 @@ public class ClientToServer {
 
     }
 
-    Socket connect(String ipAddr, int port, String ourIP, String ourUsername, String ourSpeed) {
+    Socket connect(String ipAddr, int port) {
         //connect to the server in question here, and then in the view, have the view send the central server the username and
         //link speed stuff later.
         try {
@@ -42,13 +44,10 @@ public class ClientToServer {
             Socket controlConnection = new Socket(ipAddr, intConnectPort);
             BufferedReader inputS = new BufferedReader(new InputStreamReader(controlConnection.getInputStream()));
 
-            //System.out.println("Connect received.");
             String response = inputS.readLine();
-            //System.out.println("response received.");
-            if (response.equals("Response: 220 Welcome to JFTP.")) { //TODO Tensei response message needs finalizing.
-                //inputS.close();
-                sendServerMetaData(controlConnection, ourIP, ourUsername, ourSpeed);
-                return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
+
+            if (response.contains("Line ready")) {
+                return controlConnection;
             } else {
                 return null;
             }
@@ -78,7 +77,7 @@ public class ClientToServer {
 
 
     public Object[][] searchServer(String searchingFor, Socket serverSocket) {
-        //TODO should be ready but making sure the central server and the peers still needs to happen.
+
         try {
             BufferedReader inputS = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
@@ -95,7 +94,7 @@ public class ClientToServer {
 
             String[] instanceData;
             for(int x = 0; x < Integer.parseInt(resultsSize); x++){
-                instanceData = inputS.readLine().split(","); //TODO Tensei the results strings might not always be divided with commas
+                instanceData = inputS.readLine().split(",");
                 ourData[x][0] = instanceData[0]; //link speed
                 ourData[x][1] = instanceData[1]; //host ip address
                 ourData[x][2] = instanceData[2]; //file name
@@ -110,8 +109,6 @@ public class ClientToServer {
     }
 
     public void sendServerMetaData(Socket serverSocket, String ipAddress, String usernameParam, String speed){
-        //TODO THEORETICALLY DONE BUT NEEDS TESTING ONCE THE VIEW AND SERVER ARE IN PLACE/READY also needs better exception
-        //TODO handling.
         try {
             DocumentBuilderFactory myDocFact = DocumentBuilderFactory.newInstance();
             DocumentBuilder myDocBuild = myDocFact.newDocumentBuilder();
@@ -153,15 +150,33 @@ public class ClientToServer {
             byte[] ourBytes = new byte[ (int) metaToSend.length()];
 
             int hi = dataFromFile.read(ourBytes, 0, ourBytes.length);
-            //System.out.println(hi);
 
-            BufferedOutputStream dataOut = new BufferedOutputStream(serverSocket.getOutputStream());
+            BufferedWriter comWriter = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
+            BufferedReader comReader = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
 
-            dataOut.write(ourBytes, 0, ourBytes.length); //shouldn't need a flush thanks to the close, but doing it anyways.
-            dataOut.flush();
-            //dataOut.close();
+            comWriter.write("META", 0, "META".length());
 
-            Files.deleteIfExists(metaToSend.toPath());
+            String ourResult = comReader.readLine();
+
+            if(ourResult.contains("PORT")){
+
+                String[] ourwords = ourResult.split(" ");
+                int ourPort = Integer.parseInt(ourwords[1]);
+
+                Socket fileSendingSocket = new Socket(serverSocket.getInetAddress(), ourPort);
+                BufferedOutputStream dataOut = new BufferedOutputStream(fileSendingSocket.getOutputStream());
+
+                dataOut.write(ourBytes, 0, ourBytes.length); //shouldn't need a flush thanks to the close, but doing it anyways.
+                dataOut.flush();
+
+                dataOut.close();
+                fileSendingSocket.close();
+
+                Files.deleteIfExists(metaToSend.toPath());
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "We were unable to create a socket to send the metadata file out through.");
+            }
 
         } catch (IOException e) {
             System.out.println("Whoops in metadata opening");

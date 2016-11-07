@@ -1,5 +1,6 @@
 package com.company;
 
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 
 /**
@@ -8,9 +9,19 @@ import javax.swing.table.AbstractTableModel;
  */
 public class TableModel extends AbstractTableModel{
 
-    String[] ourHeaders = { "Speed", "Hostname", "File Name"};
+    String[]  ourHeaders = { "Speed", "Hostname", "File Name"};
 
-    Object[][] ourData = { {"Welcome", "to the", "program"}};
+    Object[][] ourData = { {" ", " ", " "}};
+
+    JTable ourTable;
+
+    public TableModel(){
+        ourTable = new JTable(ourData, ourHeaders);
+    }
+
+    public JTable getJTable(){
+        return ourTable;
+    }
 
     @Override
     public int getRowCount() {

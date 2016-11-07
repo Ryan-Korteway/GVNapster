@@ -118,7 +118,7 @@ public class NapsterView implements ActionListener{
         serverPort = new JLabel("Port: ");
         username = new JLabel("Username: ");
         speedLabel = new JLabel("Speed/kind of link: ");
-        userIP = new JLabel("Enter Your IP address:");
+        userIP = new JLabel("User IP address:");
 
         serverIP = new JTextField(); //JTextFields for single lines of code, JTextArea's for multi lines of text.
         portNum = new JTextField();
@@ -170,7 +170,7 @@ public class NapsterView implements ActionListener{
         searchButton = new JButton("Search");
 
         ourModel = new TableModel();
-        serverResults = new JTable(ourModel);
+        serverResults = ourModel.getJTable();
 
         resultsScroll = new JScrollPane(serverResults);
 
@@ -242,7 +242,7 @@ public class NapsterView implements ActionListener{
                     System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
-                        centralServer = ourClientToServer.connect(serverIPString, portNumInt, userIPaddress, userNameString, speedString);
+                        centralServer = ourClientToServer.connect(serverIPString, portNumInt);
                         ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                     } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
