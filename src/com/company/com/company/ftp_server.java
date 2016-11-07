@@ -42,7 +42,7 @@ public class ftp_server implements Runnable {
             int port = 3715;
 
             // if data directory does not exist, create it
-            File dir = new File("./data");
+            File dir = new File("./data"); 
             if (dir.isDirectory()) {
                 // do nothing
             } else {

@@ -97,9 +97,6 @@ final class FtpRequest implements Runnable {
                         dataSock.close(); //added to close things
                         break; //added to get us back to listening for other instructions.
                     }
-                    //response(os, "Response: 226 Closing data connection." + CRLF); //pretty sure never gets called but leaving alone
-                    //commenting out this response, despite being a duplicate, causes us to stall out and never continue the program.
-                    //TODO temporarily taking this out again to see if the cause of the stall on the other end has been found.
                 }
 
                 if (clientCommand[0].equals("RETR_M")) {
@@ -130,7 +127,7 @@ final class FtpRequest implements Runnable {
                         dataSock.close(); //added to close things
                         break; //added to get us back to listening for other instructions.
                     }
-                    response(os, "Response: 226 Closing data connection." + CRLF); //pretty sure never gets called but leaving alone
+                    //response(os, "Response: 226 Closing data connection." + CRLF); //pretty sure never gets called but leaving alone
 
                 }
 

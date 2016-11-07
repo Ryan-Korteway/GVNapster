@@ -146,7 +146,7 @@ public class ClientToPeer{
                 }
             }
 
-        } catch (Exception E) { //TODO we are getting hung up in RETR somewhere and only closing the server is dealing with it.
+        } catch (Exception E) {
             JOptionPane.showMessageDialog(null, "Something went wrong with retrieve.");
             E.printStackTrace();
         }
@@ -167,8 +167,8 @@ public class ClientToPeer{
 
 
             //the start of the file path on my windows tower.
-            File localFile = new File("./data/meta.xml"); //parse the xml file into a document.
-//TODO removing the period at the start of the file path to make things windows friendly for a spell.
+            File localFile = new File("./data/meta.xml");
+
             Document localXML = myDB.parse(localFile);
 
             JOptionPane.showMessageDialog(null, "accessing meta data");
