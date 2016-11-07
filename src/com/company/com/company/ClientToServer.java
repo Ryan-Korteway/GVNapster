@@ -42,7 +42,7 @@ public class ClientToServer {
 
             String[] ourResults = connectPort.split(" ");
 
-            int intConnectPort = Integer.parseInt(ourResults[1]); //TODO get just the port number from the connect port string.
+            int intConnectPort = Integer.parseInt(ourResults[1]);
             System.out.println("our connectPort " + intConnectPort);
             Socket controlConnection = new Socket(ipAddr, intConnectPort);
             System.out.println("Socket made");
@@ -162,7 +162,7 @@ public class ClientToServer {
             byte[] ourBytes = new byte[ (int) metaToSend.length()];
 
             System.out.println("about to read file");
-            int hi = dataFromFile.read(ourBytes, 0, ourBytes.length);
+            int bytesToSend = dataFromFile.read(ourBytes, 0, ourBytes.length);
 
             System.out.println("File read.");
             BufferedWriter comWriter = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
@@ -170,7 +170,7 @@ public class ClientToServer {
 
             System.out.println("about to write meta");
 
-            comWriter.write("META", 0, "META".length());
+            comWriter.write("META " + bytesToSend, 0, ("META " + bytesToSend).length());
             comWriter.write("\r\n", 0, "\r\n".length());
             comWriter.flush();
 
