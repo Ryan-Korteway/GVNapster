@@ -1,18 +1,15 @@
 package com.company;
 
-import javafx.beans.property.adapter.JavaBeanObjectProperty;
-
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
-/**
+
+/** NapsterView class for the generation of our gui.
  * Created by Blaze on 10/24/16.
  */
 public class NapsterView implements ActionListener{
@@ -97,6 +94,8 @@ public class NapsterView implements ActionListener{
 
     Socket localSocket;
 
+    String userIPaddress;
+
     public NapsterView(ClientToPeer passedClientToPeer, ClientToServer passedClientToServer){
 
         ourClientToPeer = passedClientToPeer;
@@ -130,7 +129,7 @@ public class NapsterView implements ActionListener{
         quitButton = new JButton("Disconnect");
 
         String[] ourOptions = {"Ethernet", "Wi-Fi", "T-1", "T-3"};
-        linkSelector = new JComboBox<String>(ourOptions); //random warning about an unchecked call
+        linkSelector = new JComboBox<>(ourOptions); //random warning about an unchecked call
 
         connectButton.addActionListener(this);
         quitButton.addActionListener(this);
@@ -237,13 +236,14 @@ public class NapsterView implements ActionListener{
                 portNumString = portNum.getText();
                 userNameString = usernameBox.getText();
                 speedString = linkSelector.getSelectedItem().toString();
-                String userIPaddress = userIPBox.getText();
+                userIPaddress = userIPBox.getText();
 
                 if (!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("") && !userIPaddress.equals("")) {
                     System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
                         centralServer = ourClientToServer.connect(serverIPString, portNumInt, userIPaddress, userNameString, speedString);
+                        ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                     } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
                         JOptionPane.showMessageDialog(null, e1.getMessage()); //replacing print lines with pop ups.
@@ -308,13 +308,11 @@ public class NapsterView implements ActionListener{
                         userNameString = usernameBox.getText();
                         speedString = linkSelector.getSelectedItem().toString();
 
-                        //TODO update the if statement for central server stuff and undo the host exception catch block being commented out.
-                        if (!userNameString.equals("")){ //TODO && (centralServer != null)) {
+                        if (!userNameString.equals("") && (centralServer != null)) {
                             ourClientToPeer.getFile(command[1], localSocket);
                             JOptionPane.showMessageDialog(null, "About to get meta data.");
                             ourClientToPeer.getFileMetaData(command[1], localSocket);
-                            //TODO uncomment the line below once our central server is ready/involved
-                            //TODO ourClientToServer.sendServerMetaData(centralServer, InetAddress.getLocalHost().getHostName(), userNameString, speedString);
+                            ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                             programOutput.append("File retrieved.\n");
                         }
                         else{
@@ -326,7 +324,7 @@ public class NapsterView implements ActionListener{
                         JOptionPane.showMessageDialog(null, "Please provide a valid file name before trying to retrieve a file.");
                     }catch(NullPointerException ne){
                         JOptionPane.showMessageDialog(null, "local or server socket was null, shouldn't be happening.");
-                    }// catch (UnknownHostException e1) {
+                    } // catch (UnknownHostException e1) {
 //                        e1.printStackTrace();
 //                    }
                 }
