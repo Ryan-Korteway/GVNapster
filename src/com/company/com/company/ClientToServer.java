@@ -40,13 +40,19 @@ public class ClientToServer {
             System.out.println(connectPort);
             listenerConnection.close(); //might need to murphy proof this by sending out a reply to the server that we got through.
 
-            int intConnectPort = Integer.parseInt(connectPort);
+            String[] ourResults = connectPort.split(" ");
+
+            int intConnectPort = Integer.parseInt(ourResults[1]); //TODO get just the port number from the connect port string.
+            System.out.println("our connectPort " + intConnectPort);
             Socket controlConnection = new Socket(ipAddr, intConnectPort);
+            System.out.println("Socket made");
             BufferedReader inputS = new BufferedReader(new InputStreamReader(controlConnection.getInputStream()));
 
+            System.out.println("about to read line");
             String response = inputS.readLine();
 
             if (response.contains("Line ready")) {
+                System.out.println("Line is ready.");
                 return controlConnection;
             } else {
                 return null;
@@ -116,6 +122,8 @@ public class ClientToServer {
             File origMetaFile = new File("./data/meta.xml");
             Document ourOrigFile = myDocBuild.parse(origMetaFile);
 
+            System.out.println("meta data parsed");
+
             Node connectionNode = ourOrigFile.createElement("connection");
 
             Element ipAddr = ourOrigFile.createElement("address");
@@ -134,6 +142,8 @@ public class ClientToServer {
             ourOrigFile.getFirstChild().appendChild(connectionNode); //need first child so we are not trying to append to the
             //unchangeable root of the xml file.
 
+            System.out.println("meta data updated with user info");
+
             File metaToSend = new File("./data/toServer.xml");
 
             //this stuff down here is the stuff that saves the file back to our disk, thus allowing us to resend it.
@@ -143,22 +153,32 @@ public class ClientToServer {
             StreamResult result = new StreamResult(metaToSend);
             transformer.transform(source, result);
 
+            System.out.println("new meta data file created");
+
             //file should now be created so send it out via the data output stream.
             FileInputStream ourFileToRead = new FileInputStream(metaToSend);
             BufferedInputStream dataFromFile = new BufferedInputStream(ourFileToRead);
 
             byte[] ourBytes = new byte[ (int) metaToSend.length()];
 
+            System.out.println("about to read file");
             int hi = dataFromFile.read(ourBytes, 0, ourBytes.length);
 
+            System.out.println("File read.");
             BufferedWriter comWriter = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
             BufferedReader comReader = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
 
+            System.out.println("about to write meta");
+
             comWriter.write("META", 0, "META".length());
+            comWriter.write("\r\n", 0, "\r\n".length());
+            comWriter.flush();
 
             String ourResult = comReader.readLine();
 
-            if(ourResult.contains("PORT")){
+            System.out.println("our result " + ourResult);
+
+            if(ourResult.contains("PORT:")){
 
                 String[] ourwords = ourResult.split(" ");
                 int ourPort = Integer.parseInt(ourwords[1]);

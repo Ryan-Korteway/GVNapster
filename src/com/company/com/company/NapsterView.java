@@ -243,6 +243,7 @@ public class NapsterView implements ActionListener{
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
                         centralServer = ourClientToServer.connect(serverIPString, portNumInt);
+                        System.out.println("about to send meta data");
                         ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                     } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
