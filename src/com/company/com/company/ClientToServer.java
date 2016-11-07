@@ -102,6 +102,7 @@ public class ClientToServer {
             }
 
             return ourData;
+
         } catch (Exception e) {
             System.out.println("Something happened with search");
             return null;
@@ -118,15 +119,15 @@ public class ClientToServer {
             File origMetaFile = new File("./data/meta.xml");
             Document ourOrigFile = myDocBuild.parse(origMetaFile);
 
-            Node connectionNode = ourOrigFile.createElement("Connection");
+            Node connectionNode = ourOrigFile.createElement("connection");
 
-            Element ipAddr = ourOrigFile.createElement("ip address");
+            Element ipAddr = ourOrigFile.createElement("address");
             ipAddr.appendChild(ourOrigFile.createTextNode(ipAddress));
 
             Element uName = ourOrigFile.createElement("username");
-            ipAddr.appendChild(ourOrigFile.createTextNode(usernameParam));
+            uName.appendChild(ourOrigFile.createTextNode(usernameParam));
 
-            Element linkSpeed = ourOrigFile.createElement("link Speed");
+            Element linkSpeed = ourOrigFile.createElement("speed");
             linkSpeed.appendChild(ourOrigFile.createTextNode(speed));
 
             connectionNode.appendChild(ipAddr);
@@ -152,6 +153,7 @@ public class ClientToServer {
             byte[] ourBytes = new byte[ (int) metaToSend.length()];
 
             int hi = dataFromFile.read(ourBytes, 0, ourBytes.length);
+            //System.out.println(hi);
 
             BufferedOutputStream dataOut = new BufferedOutputStream(serverSocket.getOutputStream());
 
@@ -159,7 +161,6 @@ public class ClientToServer {
             dataOut.flush();
             //dataOut.close();
 
-            //still need to delete the file afterwards.
             Files.deleteIfExists(metaToSend.toPath());
 
         } catch (IOException e) {

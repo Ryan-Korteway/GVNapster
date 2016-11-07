@@ -14,7 +14,6 @@ public class Main {
         ClientToServer ourClientToServer = new ClientToServer();
 
         NapsterView ourView = new NapsterView(ourClientToPeer, ourClientToServer);
+        //ourClientToServer.sendServerMetaData(null, "35.39.165.15", "Ryan", "Ethernet");
     }
-
-    //TODO NO CLOSING ANY STREAMS EARLY, should be good ~rk
 }
