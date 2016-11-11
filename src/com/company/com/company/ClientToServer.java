@@ -96,10 +96,13 @@ public class ClientToServer {
                 resultsSize = inputS.readLine(); //read the size of the results array,
             }
 
-            Object[][] ourData = new Object[Integer.parseInt(resultsSize)][3];
+            Object[][] ourData = new Object[Integer.parseInt(resultsSize+1)][3];
+            ourData[0][0] = "Search term: " + searchingFor;
+            ourData[0][1] = "Number of Results:";
+            ourData[0][2] = resultsSize;
 
             String[] instanceData;
-            for(int x = 0; x < Integer.parseInt(resultsSize); x++){
+            for(int x = 1; x < Integer.parseInt(resultsSize); x++){
                 instanceData = inputS.readLine().split(",");
                 ourData[x][0] = instanceData[0]; //link speed
                 ourData[x][1] = instanceData[1]; //host ip address
