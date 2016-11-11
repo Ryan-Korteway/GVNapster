@@ -247,7 +247,7 @@ public class NapsterView implements ActionListener{
                         ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                     } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
-                        JOptionPane.showMessageDialog(null, e1.getMessage()); //replacing print lines with pop ups.
+                        JOptionPane.showMessageDialog(null, "Server is null, maybe it is down?"); //replacing print lines with pop ups.
                         e1.printStackTrace();
                     }
                 } else {
@@ -257,7 +257,11 @@ public class NapsterView implements ActionListener{
 
             if(e.getSource() == quitButton){
                 try {
-                    ourClientToServer.quitServer(centralServer);
+                    if(usernameBox.getText() != "" && userIPBox.getText() != "") {
+                        ourClientToServer.quitServer(centralServer, usernameBox.getText(), userIPBox.getText());
+                    } else{
+                        JOptionPane.showMessageDialog(null, "Need to have a username and address to tell the server who is quitting.");
+                    }
                 }catch(Exception E){
                     JOptionPane.showMessageDialog(null, "Could not disconnect, are you connected to a server?");
                 }

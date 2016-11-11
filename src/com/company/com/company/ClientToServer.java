@@ -18,6 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.*;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 /**
  * The ClientToServer class handling interactions between our user and the central server.
@@ -65,12 +66,12 @@ public class ClientToServer {
 
     }
 
-    public void quitServer(Socket givenSocket) {
+    public void quitServer(Socket givenSocket, String userName, String ipAddress) {
         try {
             System.out.println("Thank you for using the program.");
             BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
-            outputS.write("QUIT\r\n"); //once quit is sent to the central server, our records of what we host must be
+            outputS.write("QUIT " + userName + " " + ipAddress + " \r\n"); //once quit is sent to the central server, our records of what we host must be
             //deleted and the server must say that we quit. no passing of username because then quit doesn't work on the peer
             //to peer servers
             outputS.close();
@@ -104,6 +105,7 @@ public class ClientToServer {
             String[] instanceData;
             for(int x = 1; x < Integer.parseInt(resultsSize); x++){
                 instanceData = inputS.readLine().split(",");
+                //TODO the for loop should prevent us from trying to read null but could be an issue
                 ourData[x][0] = instanceData[0]; //link speed
                 ourData[x][1] = instanceData[1]; //host ip address
                 ourData[x][2] = instanceData[2]; //file name
@@ -158,22 +160,12 @@ public class ClientToServer {
 
             System.out.println("new meta data file created");
 
-            //file should now be created so send it out via the data output stream.
-            FileInputStream ourFileToRead = new FileInputStream(metaToSend);
-            BufferedInputStream dataFromFile = new BufferedInputStream(ourFileToRead);
-
-            byte[] ourBytes = new byte[ (int) metaToSend.length()];
-
-            System.out.println("about to read file");
-            int bytesToSend = dataFromFile.read(ourBytes, 0, ourBytes.length);
-
-            System.out.println("File read.");
             BufferedWriter comWriter = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
             BufferedReader comReader = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
 
-            System.out.println("about to write meta");
+            System.out.println("about to write meta command.");
 
-            comWriter.write("META " + bytesToSend, 0, ("META " + bytesToSend).length());
+            comWriter.write("META", 0, "META".length());
             comWriter.write("\r\n", 0, "\r\n".length());
             comWriter.flush();
 
@@ -186,11 +178,30 @@ public class ClientToServer {
                 String[] ourwords = ourResult.split(" ");
                 int ourPort = Integer.parseInt(ourwords[1]);
 
+                System.out.println(ourPort);
                 Socket fileSendingSocket = new Socket(serverSocket.getInetAddress(), ourPort);
-                BufferedOutputStream dataOut = new BufferedOutputStream(fileSendingSocket.getOutputStream());
+                BufferedWriter dataOut = new BufferedWriter(new OutputStreamWriter(fileSendingSocket.getOutputStream()));
 
-                dataOut.write(ourBytes, 0, ourBytes.length); //shouldn't need a flush thanks to the close, but doing it anyways.
-                dataOut.flush();
+                //TODO need a while loop to go through every line of the xml file and send that across as lines of strings. dont forget new lines
+                //need to read in a line from our file, and then write it out to our server.
+                    try {
+                        ArrayList<String> ourFile = getFile("toServer.xml");
+
+                        for (String lineContents : ourFile) {
+                            dataOut.write(lineContents);
+                            dataOut.flush();
+                        }
+
+                        dataOut.write("EOF" + "\r\n");
+                        dataOut.flush();
+
+                    } catch (Exception e) {
+                        //response for a file not found error that would then be written out and the downloading of the file wouldn't happen on the
+                        //client end.
+                        System.out.println();
+                    }
+
+                System.out.println("Write done and flushed.");
 
                 dataOut.close();
                 fileSendingSocket.close();
@@ -218,4 +229,18 @@ public class ClientToServer {
             e.printStackTrace();
         }
     }
+
+    private ArrayList<String> getFile(String fileName) throws Exception {
+        ArrayList<String> export = new ArrayList<String>();
+        File targetFile = new File("./data/" + fileName);
+        BufferedReader fileReader = new BufferedReader(new FileReader(targetFile));
+        String curLine;
+        while ((curLine = fileReader.readLine()) != null) {
+            export.add(curLine+"\r\n");
+        }
+        fileReader.close();
+        return export;
+
+    }
+
 }
