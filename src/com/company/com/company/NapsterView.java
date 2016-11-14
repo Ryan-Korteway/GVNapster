@@ -259,6 +259,7 @@ public class NapsterView implements ActionListener{
                             {
                                 textResults.append(ourResults[x] + "\r\n");
                             }
+                            System.out.println("After for Loop ");
                             searchPanel.repaint();
                             ourFrame.repaint();
                         }

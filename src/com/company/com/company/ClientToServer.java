@@ -26,6 +26,10 @@ import java.util.ArrayList;
  */
 public class ClientToServer {
 
+    BufferedReader inputS;
+
+    BufferedWriter outputS;
+
     public ClientToServer() {
         //Our constructor, not sure what it needs honestly.
 
@@ -47,7 +51,9 @@ public class ClientToServer {
             System.out.println("our connectPort " + intConnectPort);
             Socket controlConnection = new Socket(ipAddr, intConnectPort);
             System.out.println("Socket made");
-            BufferedReader inputS = new BufferedReader(new InputStreamReader(controlConnection.getInputStream()));
+
+            inputS = new BufferedReader(new InputStreamReader(controlConnection.getInputStream()));
+            outputS = new BufferedWriter(new OutputStreamWriter(controlConnection.getOutputStream()));
 
             System.out.println("about to read line");
             String response = inputS.readLine();
@@ -69,8 +75,8 @@ public class ClientToServer {
     public void quitServer(Socket givenSocket, String userName, String ipAddress) {
         try {
             System.out.println("Thank you for using the program.");
-            BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
-            BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
+            //BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
+            //BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
             outputS.write("QUIT " + userName + " " + ipAddress + " \r\n"); //once quit is sent to the central server, our records of what we host must be
             //deleted and the server must say that we quit. no passing of username because then quit doesn't work on the peer
             //to peer servers
@@ -86,11 +92,13 @@ public class ClientToServer {
     public String[] searchServer(String searchingFor, Socket serverSocket) {
 
         try {
-            BufferedReader inputS = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-            BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
+            //BufferedReader inputS = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+            //BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
             //sending stuff to the server
 
+            System.out.println("about to read first line for search");
             String response = inputS.readLine();
+            System.out.println("response " + response);
             if(response.contains("Line ready")) {
                 outputS.write("SEARCH " + searchingFor + " \r\n");
                 outputS.flush();
