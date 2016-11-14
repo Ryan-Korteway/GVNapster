@@ -83,38 +83,52 @@ public class ClientToServer {
     }
 
 
-    public Object[][] searchServer(String searchingFor, Socket serverSocket) {
+    public String[] searchServer(String searchingFor, Socket serverSocket) {
 
         try {
             BufferedReader inputS = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
             //sending stuff to the server
-            outputS.write("SEARCH " + searchingFor + " \r\n");
-            outputS.flush();
+
+            String response = inputS.readLine();
+            if(response.contains("Line ready")) {
+                outputS.write("SEARCH " + searchingFor + " \r\n");
+                outputS.flush();
+                System.out.println("Search sent.");
+            }
 
             String resultsSize = "";
             while(resultsSize.equals("")){
                 resultsSize = inputS.readLine(); //read the size of the results array,
             }
 
-            Object[][] ourData = new Object[Integer.parseInt(resultsSize+1)][3];
+            System.out.println("reply read. " + resultsSize);
+
+            Object[][] ourData = new Object[(Integer.parseInt(resultsSize))+1][3];
+            System.out.println(ourData.length);
             ourData[0][0] = "Search term: " + searchingFor;
             ourData[0][1] = "Number of Results:";
             ourData[0][2] = resultsSize;
 
-            String[] instanceData;
-            for(int x = 1; x < Integer.parseInt(resultsSize); x++){
-                instanceData = inputS.readLine().split(",");
-                //TODO the for loop should prevent us from trying to read null but could be an issue
-                ourData[x][0] = instanceData[0]; //link speed
-                ourData[x][1] = instanceData[1]; //host ip address
-                ourData[x][2] = instanceData[2]; //file name
+            System.out.println("got past the parse.");
+
+            String[] instanceData = new String[Integer.parseInt(resultsSize)+1];
+            instanceData[0] = "Search term: " + searchingFor + " Number of Results: " + resultsSize;
+
+            for(int x = 1; x <= (Integer.parseInt(resultsSize)); x++){
+                String serverLine = inputS.readLine();
+                String[] ourLineParts = serverLine.split(",");
+                System.out.println("our line here " + serverLine);
+
+                instanceData[x] = ourLineParts[0] + " " + ourLineParts[1] + " " + ourLineParts[2] + "\r\n";
             }
 
-            return ourData;
+            System.out.println("About to return instance");
+            return instanceData;
 
         } catch (Exception e) {
-            System.out.println("Something happened with search");
+            System.out.println("Something happened with search: " + e.toString());
+            //e.printStackTrace();
             return null;
         }
     }
@@ -124,7 +138,7 @@ public class ClientToServer {
             DocumentBuilderFactory myDocFact = DocumentBuilderFactory.newInstance();
             DocumentBuilder myDocBuild = myDocFact.newDocumentBuilder();
 
-            File origMetaFile = new File("./data/meta.xml");
+            File origMetaFile = new File("data/meta.xml");
             Document ourOrigFile = myDocBuild.parse(origMetaFile);
 
             System.out.println("meta data parsed");
@@ -149,7 +163,7 @@ public class ClientToServer {
 
             System.out.println("meta data updated with user info");
 
-            File metaToSend = new File("./data/toServer.xml");
+            File metaToSend = new File("data/toServer.xml");
 
             //this stuff down here is the stuff that saves the file back to our disk, thus allowing us to resend it.
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -232,7 +246,7 @@ public class ClientToServer {
 
     private ArrayList<String> getFile(String fileName) throws Exception {
         ArrayList<String> export = new ArrayList<String>();
-        File targetFile = new File("./data/" + fileName);
+        File targetFile = new File("data/" + fileName);
         BufferedReader fileReader = new BufferedReader(new FileReader(targetFile));
         String curLine;
         while ((curLine = fileReader.readLine()) != null) {

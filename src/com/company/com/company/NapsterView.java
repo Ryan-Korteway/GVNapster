@@ -14,6 +14,8 @@ import java.net.Socket;
  */
 public class NapsterView implements ActionListener{
 
+    private JTextArea textResults;
+
     // start of the overall variables and the connect panel variables.
 
     Socket centralServer; //our globally accessible socket to the centralized server.
@@ -66,8 +68,6 @@ public class NapsterView implements ActionListener{
 
     JButton searchButton;
 
-    JTable serverResults;
-
     // start of the function panel variables.
 
     //JLabel ftpLabel;
@@ -87,10 +87,6 @@ public class NapsterView implements ActionListener{
     String speedString;
 
     Boolean connected = false;
-
-    JScrollPane resultsScroll;
-
-    TableModel ourModel;
 
     Socket localSocket;
 
@@ -169,10 +165,8 @@ public class NapsterView implements ActionListener{
 
         searchButton = new JButton("Search");
 
-        ourModel = new TableModel();
-        serverResults = ourModel.getJTable();
-
-        resultsScroll = new JScrollPane(serverResults);
+        textResults = new JTextArea("Link Speed      User IP address     File Name");
+        textResults.setEditable(false);
 
         searchButton.addActionListener(this);
 
@@ -180,7 +174,7 @@ public class NapsterView implements ActionListener{
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
 
-        searchPanel.add(resultsScroll, BorderLayout.SOUTH); //scroll panel needed to show headers.
+        searchPanel.add(textResults, BorderLayout.SOUTH);
 
         //function panel items
 
@@ -207,29 +201,10 @@ public class NapsterView implements ActionListener{
         ourFrame.add(overPanel);
         ourFrame.pack();
         ourFrame.setVisible(true);
-        ourFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); //might need to be something else.
+        ourFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-
-        //actions performed need to check for the connect and disconnect buttons being pushed to set up
-        //and tear down the connection/socket to the central/Database server
-        //part of the checking options for connect will be to make sure all of the fields from the connect panel are
-        //filled in, all users need to have a username, all connections need a valid port number, etc.
-
-        //with the go button we need to check if its a connect, RETR, or quit command and each of these three
-        //depend on a locally created socket that is directed at the peers server after getting the IP
-        //of said peer from the searchResults JTable.
-        //connect and quit set up the local socket and then retr can be used with it to get lots of stuff from the
-        //peer's server.
-
-        //the go button is used to send the keyword for the search term to the central server with the globally created/available
-        //socket. there is a search server method that is in the client class that just needs the socket of the server to
-        //direct the query at and the string that is being searched for, aka the keyword from the searchField JTextField.
-
-        //all of these will need proper boolean flags to make sure you are not trying to quit before you connect, connect
-        //before quitting the last server etc. no retrieving before connecting to a peer server, no quitting a peer server before
-        //connecting etc.
 
             if(e.getSource() == connectButton) {
                 serverIPString = serverIP.getText();
@@ -271,12 +246,21 @@ public class NapsterView implements ActionListener{
                 try {
                     if(centralServer != null) {
                         String keyword = searchField.getText();
-                        Object[][] ourResults = ourClientToServer.searchServer(keyword, centralServer);
+                        String[] ourResults = ourClientToServer.searchServer(keyword, centralServer);
                         if(ourResults == null){
                             JOptionPane.showMessageDialog(null, "Results were null. An error has occurred.");
                         }
                         else {
-                            ourModel.setOurData(ourResults);
+                            textResults.setText("");
+                            textResults.append("Link Speed      User IP address     File Name\r\n");
+
+                            System.out.println("about to for loop");
+                            for(int x = 0; x < ourResults.length; x++)
+                            {
+                                textResults.append(ourResults[x] + "\r\n");
+                            }
+                            searchPanel.repaint();
+                            ourFrame.repaint();
                         }
                     }
                     else {
