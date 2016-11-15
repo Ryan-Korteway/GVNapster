@@ -105,14 +105,21 @@ public class ClientToServer {
                 System.out.println("Search sent.");
             }
 
+            Object[][] ourData;
             String resultsSize = "";
-            while(resultsSize.equals("")){
-                resultsSize = inputS.readLine(); //read the size of the results array,
+
+            while(true) {
+                try {
+                    resultsSize = inputS.readLine(); //read the size of the results array,
+
+                    System.out.println("reply read. " + resultsSize);
+                    ourData = new Object[(Integer.parseInt(resultsSize)) + 1][3];
+                    break;
+                } catch( NumberFormatException N){
+                    JOptionPane.showMessageDialog(null, "bad read");
+                }
             }
 
-            System.out.println("reply read. " + resultsSize);
-
-            Object[][] ourData = new Object[(Integer.parseInt(resultsSize))+1][3];
             System.out.println(ourData.length);
             ourData[0][0] = "Search term: " + searchingFor;
             ourData[0][1] = "Number of Results:";

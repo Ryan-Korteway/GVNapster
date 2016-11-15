@@ -92,6 +92,8 @@ public class NapsterView implements ActionListener{
 
     String userIPaddress;
 
+    Boolean centralConnection = false;
+
     public NapsterView(ClientToPeer passedClientToPeer, ClientToServer passedClientToServer){
 
         ourClientToPeer = passedClientToPeer;
@@ -213,20 +215,24 @@ public class NapsterView implements ActionListener{
                 speedString = linkSelector.getSelectedItem().toString();
                 userIPaddress = userIPBox.getText();
 
-                if (!serverIPString.equals("") && !portNumString.equals("") && !userNameString.equals("") && !userIPaddress.equals("")) {
-                    System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
+                if (!centralConnection && !serverIPString.equals("") && !portNumString.equals("") &&
+                        !userNameString.equals("") && !userIPaddress.equals("")) {
+                  System.out.println("IP: " + serverIPString + " Port: " + portNumString + " Name: " + userNameString);
                     int portNumInt = Integer.parseInt(portNumString);
                     try {
                         centralServer = ourClientToServer.connect(serverIPString, portNumInt);
                         System.out.println("about to send meta data");
-                        ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
+                       ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
+                        centralConnection = true;
                     } catch (Exception e1) {
                         System.out.println("ClientToServer Unknown Host Exception.");
-                        JOptionPane.showMessageDialog(null, "Server is null, maybe it is down?"); //replacing print lines with pop ups.
+                        JOptionPane.showMessageDialog(null, "Server is null, maybe it is down?");
+                        //replacing print lines with pop ups.
                         e1.printStackTrace();
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, "Please fill in all fields");
+                    JOptionPane.showMessageDialog(null, "Please fill in all fields, or disconnect from the " +
+                            "current server before connecting to the next.");
                 }
             }
 
