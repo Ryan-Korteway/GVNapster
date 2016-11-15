@@ -113,7 +113,7 @@ public class ClientToPeer{
                 //System.out.println(resultString);
 
                 if (!resultString.equals("Response: 426 Something broke.")) {
-                    File localFile = new File("./data/" + ourFile);
+                    File localFile = new File("data/" + ourFile);
                     BufferedWriter dataOutToFile = new BufferedWriter(new FileWriter(localFile));
                     String readLine = "ping";
 
@@ -165,9 +165,10 @@ public class ClientToPeer{
 
             JOptionPane.showMessageDialog(null, "About to load up and parse the meta data");
 
+            System.out.println("start of getting meta");
 
             //the start of the file path on my windows tower.
-            File localFile = new File("./data/meta.xml");
+            File localFile = new File("data/meta.xml");
 
             Document localXML = myDB.parse(localFile);
 
@@ -184,6 +185,7 @@ public class ClientToPeer{
 
                     if (eHere.getNodeName().contains("file")) {
                         String fileName = eHere.getElementsByTagName("name").item(0).getTextContent();
+                        System.out.println(fileName);
                         if(fileName.equals(ourFile)){
                             newFile = false; //set newFile to false so that we know to edit our element instead of make a new one.
                             toChange = eHere; //saving the element that needs changing so we don't have to search for it twice.
@@ -208,7 +210,7 @@ public class ClientToPeer{
                 resultString = inputS.readLine();
             }
 
-            //System.out.println("first result "+resultString);
+            System.out.println("first result "+resultString);
 
             String[] ourResults = resultString.split(",");
             int ourPortFromServer = Integer.parseInt(ourResults[1]);
@@ -222,7 +224,7 @@ public class ClientToPeer{
                     resultString = inputS.readLine();
                 }
 
-                //System.out.println(resultString);
+                System.out.println(resultString);
 
                 if (!resultString.equals("Response: 426 Something broke.")) {
 
@@ -243,6 +245,7 @@ public class ClientToPeer{
                         } else {
                            //line received here to make the new node or update the existing node description etc.
                             if(newFile){ //add new node to the meta data file etc.
+                                System.out.println("Adding new meta data here");
                                 Node newFileNode = localXML.createElement("file");
 
                                 Element newName = localXML.createElement("name");
@@ -262,6 +265,7 @@ public class ClientToPeer{
                     }
 
                     if (resultString.equals("Response: 226 Closing data connection.")) {
+                        System.out.println("proper response recieved.");
 //                        inputS.close();
 //                        outputS.close();
 
@@ -271,6 +275,7 @@ public class ClientToPeer{
                         DOMSource mySource = new DOMSource(localXML); //the parsed xml document
                         StreamResult strRes = new StreamResult(localFile); //the local xml file we are rewriting.
                         transformerObj.transform(mySource, strRes);
+                        System.out.println("end of the saving of the new meta data file");
                     } else {
                         //print out of the error message from the server.
                         System.out.println("Retrieve function did not end properly. Your xml file may not be complete.");

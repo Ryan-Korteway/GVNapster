@@ -46,6 +46,7 @@ public class DataRequest implements Runnable{
 
         if (command.contains("RETR_M")) {
             String fileName = command.substring(7);
+            System.out.println("file name: " + fileName);
             try {
                 //parse the file, if the name node value matches the file name, then write it out.
                 DocumentBuilderFactory myDBF = DocumentBuilderFactory.newInstance();
@@ -63,8 +64,10 @@ public class DataRequest implements Runnable{
                         Element here = (Element) ourNodes.item(x);
                         if(here.getNodeName().contains("file")){
                             String nodeFileName = here.getElementsByTagName("name").item(0).getTextContent();
+                            System.out.println("node file name: " + nodeFileName);
                             if(nodeFileName.equals(fileName)){
                                 String results = here.getElementsByTagName("desc").item(0).getTextContent();
+                                System.out.println("file desc: " + results);
                                 os.writeUTF(results + "\r\n"); //todo Might not need the new line here.
                                 os.flush();
                             }
