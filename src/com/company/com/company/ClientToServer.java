@@ -96,14 +96,14 @@ public class ClientToServer {
             //BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
             //sending stuff to the server
 
-            System.out.println("about to read first line for search");
-            String response = inputS.readLine();
-            System.out.println("response " + response);
-            if(response.contains("Line ready")) {
-                outputS.write("SEARCH " + searchingFor + " \r\n");
-                outputS.flush();
-                System.out.println("Search sent.");
-            }
+//            System.out.println("about to read first line for search");
+//            String response = inputS.readLine();
+//            System.out.println("response " + response);
+
+            outputS.write("SEARCH " + searchingFor + " \r\n");
+            outputS.flush();
+            System.out.println("Search sent.");
+
 
             Object[][] ourData;
             String resultsSize = "";
@@ -116,7 +116,7 @@ public class ClientToServer {
                     ourData = new Object[(Integer.parseInt(resultsSize)) + 1][3];
                     break;
                 } catch( NumberFormatException N){
-                    JOptionPane.showMessageDialog(null, "bad read");
+                    //JOptionPane.showMessageDialog(null, "bad read");
                 }
             }
 
@@ -137,6 +137,9 @@ public class ClientToServer {
 
                 instanceData[x] = ourLineParts[0] + " " + ourLineParts[1] + " " + ourLineParts[2] + "\r\n";
             }
+
+            String results = inputS.readLine();
+            System.out.println("end results" + results);
 
             System.out.println("About to return instance");
             return instanceData;
@@ -211,8 +214,6 @@ public class ClientToServer {
                 Socket fileSendingSocket = new Socket(serverSocket.getInetAddress(), ourPort);
                 BufferedWriter dataOut = new BufferedWriter(new OutputStreamWriter(fileSendingSocket.getOutputStream()));
 
-                //TODO need a while loop to go through every line of the xml file and send that across as lines of strings. dont forget new lines
-                //need to read in a line from our file, and then write it out to our server.
                     try {
                         ArrayList<String> ourFile = getFile("toServer.xml");
 
@@ -234,8 +235,10 @@ public class ClientToServer {
 
                 dataOut.close();
                 fileSendingSocket.close();
-
                 Files.deleteIfExists(metaToSend.toPath());
+
+                String results = inputS.readLine();
+                System.out.println("end results " + results);
             }
             else{
                 JOptionPane.showMessageDialog(null, "We were unable to create a socket to send the metadata file out through.");

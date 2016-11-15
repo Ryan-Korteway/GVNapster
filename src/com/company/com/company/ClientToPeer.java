@@ -51,7 +51,7 @@ public class ClientToPeer{
             String response = inputS.readLine();
             //System.out.println("response received.");
             if (response.equals("Response: 220 Welcome to JFTP.")) {
-                JOptionPane.showMessageDialog(null, "IT works");
+                //JOptionPane.showMessageDialog(null, "IT works");
                 //inputS.close();
                 return controlConnection; //once we are connected in the view action listener is when we send our file metadata collecion.
             } else {
@@ -172,29 +172,31 @@ public class ClientToPeer{
 
             Document localXML = myDB.parse(localFile);
 
-            JOptionPane.showMessageDialog(null, "accessing meta data");
+            System.out.println("accessing meta data");
 
-            Element myRootElement = localXML.getDocumentElement();
+            //Element myRootElement = localXML.getDocumentElement();
+            //TODO selecting the wrong element to append after, need to append within files.
+            NodeList ourNodes = localXML.getElementsByTagName("files");
+            Element filesElement = (Element) ourNodes.item(0);
 
-            NodeList ourNodes = myRootElement.getChildNodes();
+            System.out.println(filesElement.getTagName() + filesElement.getNodeName());
+            System.out.println("files got, about to get file.");
+            NodeList ourFileNodes = filesElement.getElementsByTagName("file");
 
-            for(int x = 0; x< ourNodes.getLength(); x++){
-                if (ourNodes.item(x).getNodeType() == Node.ELEMENT_NODE) {
+            System.out.println("node list of file nodes obtained about to loop.");
 
-                    Element eHere = (Element) ourNodes.item(x);
+            for(int x = 0; x< ourFileNodes.getLength(); x++){
+                Element eHere = (Element) ourFileNodes.item(x);
 
-                    if (eHere.getNodeName().contains("file")) {
-                        String fileName = eHere.getElementsByTagName("name").item(0).getTextContent();
-                        System.out.println(fileName);
-                        if(fileName.equals(ourFile)){
-                            newFile = false; //set newFile to false so that we know to edit our element instead of make a new one.
-                            toChange = eHere; //saving the element that needs changing so we don't have to search for it twice.
-                        }
-                    }
-                }
+                String fileName = eHere.getElementsByTagName("name").item(0).getTextContent();
+                System.out.println(fileName);
+                 if(fileName.equals(ourFile)){
+                    newFile = false; //set newFile to false so that we know to edit our element instead of make a new one.
+                    toChange = eHere; //saving the element that needs changing so we don't have to search for it twice.
+                 }
             }
 
-            JOptionPane.showMessageDialog(null, "meta data search done.");
+            System.out.println("meta data search done.");
 
             BufferedReader inputS = new BufferedReader(new InputStreamReader(givenSocket.getInputStream()));
             BufferedWriter outputS = new BufferedWriter(new OutputStreamWriter(givenSocket.getOutputStream()));
@@ -256,7 +258,7 @@ public class ClientToPeer{
 
                                 newFileNode.appendChild(newName);
                                 newFileNode.appendChild(newDesc);
-                                localXML.getFirstChild().appendChild(newFileNode);
+                                ourNodes.item(0).appendChild(newFileNode);
                             }
                             else { //we are updating an existing files meta data.
                                 toChange.getElementsByTagName("desc").item(0).setTextContent(readLine);
@@ -265,7 +267,7 @@ public class ClientToPeer{
                     }
 
                     if (resultString.equals("Response: 226 Closing data connection.")) {
-                        System.out.println("proper response recieved.");
+                        System.out.println("proper response received.");
 //                        inputS.close();
 //                        outputS.close();
 
@@ -292,6 +294,7 @@ public class ClientToPeer{
         } catch (NullPointerException E) {
             System.out.println("Something went wrong with toChange.");
             JOptionPane.showMessageDialog(null, "something went wrong with toChange");
+            E.printStackTrace();
         } catch (ParserConfigurationException e) {
             System.out.println("Something went wrong with parser.");
             JOptionPane.showMessageDialog(null, "something went wrong with parser");

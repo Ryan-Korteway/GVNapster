@@ -240,6 +240,7 @@ public class NapsterView implements ActionListener{
                 try {
                     if(usernameBox.getText() != "" && userIPBox.getText() != "") {
                         ourClientToServer.quitServer(centralServer, usernameBox.getText(), userIPBox.getText());
+                        centralConnection = false;
                     } else{
                         JOptionPane.showMessageDialog(null, "Need to have a username and address to tell the server who is quitting.");
                     }
@@ -306,7 +307,7 @@ public class NapsterView implements ActionListener{
 
                         if (!userNameString.equals("") && (centralServer != null)) {
                             ourClientToPeer.getFile(command[1], localSocket);
-                            JOptionPane.showMessageDialog(null, "About to get meta data.");
+                            //JOptionPane.showMessageDialog(null, "About to get meta data.");
                             ourClientToPeer.getFileMetaData(command[1], localSocket);
                             ourClientToServer.sendServerMetaData(centralServer, userIPaddress, userNameString, speedString);
                             programOutput.append("File retrieved.\n");

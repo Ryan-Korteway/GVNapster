@@ -51,15 +51,17 @@ public class DataRequest implements Runnable{
                 //parse the file, if the name node value matches the file name, then write it out.
                 DocumentBuilderFactory myDBF = DocumentBuilderFactory.newInstance();
                 DocumentBuilder myDB = myDBF.newDocumentBuilder();
-                File serverXML = new File("./data/meta.xml");
+                File serverXML = new File("data/meta.xml");
 
                 Document docXML = myDB.parse(serverXML);
 
-                Element elementXML = docXML.getDocumentElement();
+                //Element elementXML = docXML.getDocumentElement();
 
-                NodeList ourNodes = elementXML.getChildNodes();
+                NodeList ourNodes = docXML.getElementsByTagName("file"); //elementXML.getChildNodes();
 
                 for(int x = 0; x < ourNodes.getLength(); x++){
+                    System.out.println(ourNodes.getLength());
+                    System.out.println("our node " + ourNodes.item(x).getNodeType() + "Node type: " + Node.ELEMENT_NODE);
                     if(ourNodes.item(x).getNodeType() == Node.ELEMENT_NODE){
                         Element here = (Element) ourNodes.item(x);
                         if(here.getNodeName().contains("file")){
@@ -70,6 +72,9 @@ public class DataRequest implements Runnable{
                                 System.out.println("file desc: " + results);
                                 os.writeUTF(results + "\r\n"); //todo Might not need the new line here.
                                 os.flush();
+                            } else {
+                                System.out.println("if failed.");
+                                continue;
                             }
                         }
                     }
@@ -114,7 +119,7 @@ public class DataRequest implements Runnable{
 
     private ArrayList<String> getFile(String fileName) throws Exception {
         ArrayList<String> export = new ArrayList<String>();
-        File targetFile = new File("./data/" + fileName);
+        File targetFile = new File("data/" + fileName);
         BufferedReader fileReader = new BufferedReader(new FileReader(targetFile));
         String curLine;
         while ((curLine = fileReader.readLine()) != null) {
